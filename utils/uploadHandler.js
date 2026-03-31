@@ -1,7 +1,7 @@
 let multer = require('multer')
 let path = require('path')
 
-//luu o dau ? luu voi ten la gi?
+
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/')
@@ -21,7 +21,7 @@ let filterImage = function (req, file, cb) {
     }
 }
 let filterExel = function (req, file, cb) {
-    // Accept various MIME types for Excel files
+   
     const acceptedMimeTypes = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.ms-excel',

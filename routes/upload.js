@@ -55,7 +55,6 @@ router.post('/excel', uploadExcel.single('file'), async function (req, res, next
             message: "file not found"
         })
     } else {
-        //workbook->worksheet->column/row->cell
         let workbook = new exceljs.Workbook();
         let pathFile = path.join(
             __dirname, '../uploads', req.file.filename
@@ -104,7 +103,7 @@ router.post('/excel', uploadExcel.single('file'), async function (req, res, next
                     data: errorsInRow
                 });
                 continue;
-            }// 
+            }
 
             let session = await mongoose.startSession();
             session.startTransaction()
@@ -166,7 +165,7 @@ router.post('/users_excel', uploadExcel.single('file'), async function (req, res
     }
 
     try {
-        // Read Excel file
+
         let workbook = new exceljs.Workbook();
         let pathFile = path.join(
             __dirname, '../uploads', req.file.filename
@@ -175,7 +174,7 @@ router.post('/users_excel', uploadExcel.single('file'), async function (req, res
         let worksheet = workbook.worksheets[0];
         let result = []
 
-        // Get user role ID
+
         let userRole = await rolesModel.findOne({ name: 'user' });
         if (!userRole) {
             fs.unlinkSync(pathFile)
@@ -185,23 +184,16 @@ router.post('/users_excel', uploadExcel.single('file'), async function (req, res
             })
         }
 
-        // Process each row (starting from row 2, assuming row 1 is header)
+
         for (let index = 2; index <= worksheet.rowCount; index++) {
             let errorsInRow = []
             const element = worksheet.getRow(index);
-            
-            // Extract username and email from columns 1 and 2
-            // Handle both direct values and formula objects (which have .result property)
             let username = element.getCell(1).value;
             let emailCell = element.getCell(2).value;
-            
-            // If the cell contains a formula object, extract the result
             let email = emailCell;
             if (typeof emailCell === 'object' && emailCell !== null && emailCell.result) {
                 email = emailCell.result;
             }
-
-            // Validation
             if (!username || typeof username !== 'string') {
                 errorsInRow.push("username is required and must be a string")
             }
@@ -217,13 +209,9 @@ router.post('/users_excel', uploadExcel.single('file'), async function (req, res
                 });
                 continue;
             }
-
-            // Process user without transaction (standalone MongoDB doesn't support transactions)
             try {
-                // Generate 16-character random password
                 let randomPassword = crypto.randomBytes(8).toString('hex');
 
-                // Create new user
                 let newUser = new usersModel({
                     username: username.trim(),
                     email: email.trim().toLowerCase(),
@@ -234,7 +222,6 @@ router.post('/users_excel', uploadExcel.single('file'), async function (req, res
 
                 newUser = await newUser.save();
 
-                // Send email with credentials
                 const htmlContent = `
                     <h2>Welcome to Our System!</h2>
                     <p>Your account has been created successfully.</p>
@@ -257,7 +244,6 @@ router.post('/users_excel', uploadExcel.single('file'), async function (req, res
                     console.log(`[Row ${index}] Email sent successfully to ${email}`);
                 } catch (emailError) {
                     console.error(`[Row ${index}] Email sending failed:`, emailError.message);
-                    // Continue even if email fails - user is created
                 }
 
                 result.push({
@@ -280,7 +266,6 @@ router.post('/users_excel', uploadExcel.single('file'), async function (req, res
             }
         }
 
-        // Clean up uploaded file
         fs.unlinkSync(pathFile)
 
         res.send({

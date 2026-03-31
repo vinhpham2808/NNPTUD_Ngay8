@@ -22,7 +22,7 @@ module.exports = {
                 to: recipients,
                 subject: subject,
                 html: htmlContent,
-                text: textContent || htmlContent, // Fallback to HTML if text not provided
+                text: textContent || htmlContent, 
                 category: "User Import",
             });
         } catch (error) {

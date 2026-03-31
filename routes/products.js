@@ -5,7 +5,7 @@ let inventoryModel = require('../schemas/inventories')
 const { default: slugify } = require('slugify');
 let mongoose = require('mongoose')
 
-/* GET users listing. */
+
 router.get('/', async function (req, res, next) {
   let queries = req.query;
   let minPrice = queries.minprice ? queries.minprice : 0;
